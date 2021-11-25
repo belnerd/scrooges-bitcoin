@@ -1,26 +1,71 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div>
+    <Header />
+    <ShowValue />
+    <div class="rangeSelector">
+      <form @submit.prevent="submitRange">
+        <label for="startDate">Starting date</label>
+        <input type="date" ref="startDate" />
+        <label for="endDate">Ending date</label>
+        <input type="date" ref="endDate" />
+        <button type="submit">Get data</button>
+      </form>
+    </div>
+    <ShowRange :startDate="startDate" :endDate="endDate" />
+    <Footer />
+  </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import Header from './components/Header.vue';
+import Footer from './components/Footer.vue';
+import ShowValue from './components/ShowValue.vue';
+import ShowRange from './components/ShowRange.vue';
+import { formatDateAsUnix } from './helpers.js';
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
-  }
-}
+    Header,
+    Footer,
+    ShowValue,
+    ShowRange,
+  },
+  data() {
+    return {
+      startDate: '',
+      endDate: '',
+    };
+  },
+  methods: {
+    // Get data from form inputs to be used in ShowRange component
+    // Also format the date as UNIX timestamp
+    submitRange() {
+      this.startDate = formatDateAsUnix(this.$refs.startDate.value);
+      this.endDate = formatDateAsUnix(this.$refs.endDate.value);
+    },
+  },
+};
 </script>
 
 <style>
+* {
+  margin: 0;
+  padding: 0;
+}
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  position: relative;
+  min-height: 100vh;
+  max-width: 50%;
+  margin: auto;
+}
+.rangeSelector {
+  text-align: left;
 }
 </style>
