@@ -1,16 +1,18 @@
-// A component to get data for a specified date range from coingeck API and process and display that data.
+// A component to get data for a specified date range from coingeck API and
+process and display that data.
 <template>
   <div>
     <div v-if="!startDate || !endDate">Please selects dates</div>
     <div v-else-if="rangeData.length === 0">Loading data</div>
     <div v-else>
       <p>Longest downward trend was {{ downDays }} days</p>
+      <p>Highest volume was {{ volume.volume.toFixed(0) }} EUR at {{ volume.date }}</p>
     </div>
   </div>
 </template>
 
 <script>
-import { formatDateUTCObject } from '../helpers.js';
+import { formatDate, formatDateUTCObject, transformToDaily } from '../helpers.js';
 
 export default {
   name: 'ShowRange',
@@ -21,6 +23,7 @@ export default {
       from: this.startDate,
       to: this.endDate,
       downDays: '',
+      volume: {},
     };
   },
   // Watch for changes in props to fetch new data from the API
@@ -29,18 +32,23 @@ export default {
       this.from = this.startDate;
       this.to = this.endDate;
       this.getData(
-        `https://api.coingecko.com/api/v3/coins/bitcoin/market_chart/range?vs_currency=eur&from=${this.from}&to=${this.to+3600}`
+        `https://api.coingecko.com/api/v3/coins/bitcoin/market_chart/range?vs_currency=eur&from=${
+          this.from
+        }&to=${this.to + 3600}`
       );
     },
     endDate: function () {
       this.to = this.endDate;
       this.from = this.startDate;
       this.getData(
-        `https://api.coingecko.com/api/v3/coins/bitcoin/market_chart/range?vs_currency=eur&from=${this.from}&to=${this.to+3600}`
+        `https://api.coingecko.com/api/v3/coins/bitcoin/market_chart/range?vs_currency=eur&from=${
+          this.from
+        }&to=${this.to + 3600}`
       );
     },
     rangeData: function () {
       this.findDownwardTrend();
+      this.findHighestVolume();
     },
   },
   methods: {
@@ -52,7 +60,10 @@ export default {
         .then((data) => (this.rangeData = data));
     },
     // Find the longest downward trend from the data
+    // Price of the day is the nearest hit after or at 00:00 UTC
     findDownwardTrend() {
+      // const test = transformToDaily(this.rangeData,'prices')
+      // console.log(test[0], test[1], test.length)
       const prices = this.rangeData.prices;
       let i;
       let day = formatDateUTCObject(prices[0][0]).date; // Set the first day
@@ -63,7 +74,6 @@ export default {
         let dayCounter = formatDateUTCObject(prices[i][0]).date;
         // Check if the day has changed
         if (dayCounter !== day) {
-          console.log(formatDateUTCObject(prices[i][0]))
           day = dayCounter;
           // Check if the previous price is higher than first price of a new day
           if (prevPrice >= prices[i][1]) {
@@ -90,6 +100,24 @@ export default {
         }
       }
       this.downDays = downDays;
+    },
+    // Find the highest trading volume from the data that has been transformed to daily data (at 00:00 UTC)
+    findHighestVolume() {
+      const volumes = transformToDaily(this.rangeData, 'total_volumes')
+      let max = {
+        volume: volumes[0][1],
+        timestamp: volumes[0][0],
+      };
+      for (let i = 1; i < volumes.length; i++) {
+        if (volumes[i][1] > max.volume) {
+          max.volume = volumes[i][1];
+          max.timestamp = volumes[i][0];
+        }
+      }
+      this.volume = {
+        volume: max.volume,
+        date: formatDate(max.timestamp, 'fi', { year: 'numeric', month: 'numeric', day: 'numeric' })
+      }
     },
   },
 };
