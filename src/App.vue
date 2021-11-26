@@ -21,7 +21,7 @@ import Header from './components/Header.vue';
 import Footer from './components/Footer.vue';
 import ShowValue from './components/ShowValue.vue';
 import ShowRange from './components/ShowRange.vue';
-import { formatDateAsUnix } from './helpers.js';
+import { formatDateUnix } from './helpers.js';
 
 export default {
   name: 'App',
@@ -41,8 +41,8 @@ export default {
     // Get data from form inputs to be used in ShowRange component
     // Also format the date as UNIX timestamp
     submitRange() {
-      this.startDate = formatDateAsUnix(this.$refs.startDate.value);
-      this.endDate = formatDateAsUnix(this.$refs.endDate.value);
+      this.startDate = formatDateUnix(this.$refs.startDate.value);
+      this.endDate = formatDateUnix(this.$refs.endDate.value);
     },
   },
 };

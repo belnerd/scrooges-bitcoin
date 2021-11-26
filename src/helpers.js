@@ -1,6 +1,6 @@
 module.exports = {
   // Format given datestring to a UNIX timestamp
-  formatDateAsUnix: (date) => {
+  formatDateUnix: (date) => {
     const unixTimeStamp = +new Date(date) / 1000;
     return unixTimeStamp;
   },
