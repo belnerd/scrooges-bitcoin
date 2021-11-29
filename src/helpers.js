@@ -37,16 +37,24 @@ module.exports = {
   // Parameters require an object and it's property to be transformed (prices/market_caps/total_volumes)
   transformToDaily: (obj, property) => {
     const data = obj[property];
-    let newData = [[data[0][0]/1000, data[0][1]]];
+    let newData = [[data[0][0] / 1000, data[0][1]]];
     let day = module.exports.formatDateUTCObject(data[0][0]).date; // Set starting point
     for (let i = 1; i < data.length; i++) {
       let dayCounter = module.exports.formatDateUTCObject(data[i][0]).date;
       // Check if the day has changed and push the first marking of the day to an array
       if (dayCounter !== day) {
         day = dayCounter;
-        newData.push([data[i][0]/1000, data[i][1]]);
+        newData.push([data[i][0] / 1000, data[i][1]]);
       }
     }
     return newData;
+  },
+  formatCurrency: (value, language, options) => {
+    const opts = options || {
+      style: 'currency',
+      currency: 'EUR',
+    };
+    const lang = language || 'fi-FI';
+    return new Intl.NumberFormat(lang, opts).format(value);
   },
 };
