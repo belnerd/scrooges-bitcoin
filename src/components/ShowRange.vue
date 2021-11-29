@@ -6,13 +6,19 @@ process and display that data.
     <div v-else-if="rangeData.length === 0">Loading data</div>
     <div v-else>
       <p>Longest downward trend was {{ downDays }} days</p>
-      <p>Highest volume was {{ volume.volume.toFixed(0) }} EUR at {{ volume.date }}</p>
+      <p>
+        Highest volume was {{ volume.volume.toFixed(0) }} EUR at
+        {{ volume.date }}
+      </p>
     </div>
   </div>
 </template>
 
 <script>
-import { formatDate, formatDateUTCObject, transformToDaily } from '../helpers.js';
+import {
+  formatDate,
+  transformToDaily,
+} from '../helpers.js';
 
 export default {
   name: 'ShowRange',
@@ -24,6 +30,7 @@ export default {
       to: this.endDate,
       downDays: '',
       volume: {},
+      prices: {},
     };
   },
   // Watch for changes in props to fetch new data from the API
@@ -47,7 +54,8 @@ export default {
       );
     },
     rangeData: function () {
-      this.findDownwardTrend();
+      this.prices = transformToDaily(this.rangeData, 'prices');
+      this.findBearish();
       this.findHighestVolume();
     },
   },
@@ -58,44 +66,34 @@ export default {
       fetch(url, { headers })
         .then((response) => response.json())
         .then((data) => (this.rangeData = data));
-    },
-    // Find the longest downward trend from the data
-    // Price of the day is the nearest hit after or at 00:00 UTC
-    findDownwardTrend() {
-      // const test = transformToDaily(this.rangeData,'prices')
-      // console.log(test[0], test[1], test.length)
-      const prices = this.rangeData.prices;
-      let i;
-      let day = formatDateUTCObject(prices[0][0]).date; // Set the first day
+    },    
+    // Find the longest downward trend from the data that has been transformed to daily data
+    findBearish() {
+      const prices = this.prices;
       let prevPrice = prices[0][1]; // Set the first price
       let downDays = 0;
       let streak = 0;
-      for (i = 0; i < prices.length; i++) {
-        let dayCounter = formatDateUTCObject(prices[i][0]).date;
-        // Check if the day has changed
-        if (dayCounter !== day) {
-          day = dayCounter;
-          // Check if the previous price is higher than first price of a new day
-          if (prevPrice >= prices[i][1]) {
-            streak++;
-            prevPrice = prices[i][1];
-            // Check if streak is higher than previous high streak
-            if (streak > downDays) {
-              downDays = streak;
-            }
-            // Check if downward trend ends
-          } else if (prevPrice <= prices[i][1]) {
-            if (streak >= downDays) {
-              downDays = streak;
-            }
+      for (let i = 1; i < prices.length; i++) {
+        // Check if the previous price is higher than first price of a new day
+        if (prevPrice >= prices[i][1]) {
+          streak++;
+          prevPrice = prices[i][1];
+          // Check if streak is higher than previous high streak
+          if (streak > downDays) {
+            downDays = streak;
+          }
+          // Check if downward trend ends
+        } else if (prevPrice <= prices[i][1]) {
+          if (streak >= downDays) {
+            downDays = streak;
+          }
+          streak = 0;
+          prevPrice = prices[i][1];
+        } else {
+          if (streak > downDays) {
+            downDays = streak;
             streak = 0;
             prevPrice = prices[i][1];
-          } else {
-            if (streak > downDays) {
-              downDays = streak;
-              streak = 0;
-              prevPrice = prices[i][1];
-            }
           }
         }
       }
@@ -103,7 +101,7 @@ export default {
     },
     // Find the highest trading volume from the data that has been transformed to daily data (at 00:00 UTC)
     findHighestVolume() {
-      const volumes = transformToDaily(this.rangeData, 'total_volumes')
+      const volumes = transformToDaily(this.rangeData, 'total_volumes');
       let max = {
         volume: volumes[0][1],
         timestamp: volumes[0][0],
@@ -116,8 +114,12 @@ export default {
       }
       this.volume = {
         volume: max.volume,
-        date: formatDate(max.timestamp, 'fi', { year: 'numeric', month: 'numeric', day: 'numeric' })
-      }
+        date: formatDate(max.timestamp, 'fi', {
+          year: 'numeric',
+          month: 'numeric',
+          day: 'numeric',
+        }),
+      };
     },
   },
 };
