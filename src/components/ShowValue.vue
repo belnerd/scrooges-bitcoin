@@ -5,9 +5,9 @@
     <div v-else>
       <header style="text-align: left">Current data</header>
       <div class="dataContent">
-        <div>Current value: {{ currentData.eur }} EUR</div>
-        <div>Market cap: {{ currentData.eur_market_cap }}</div>
-        <div>24h volume: {{ currentData.eur_24h_vol }}</div>
+        <div>Current value: {{ currentData.eur.toFixed(0) }} EUR</div>
+        <div>Market cap: {{ currentData.eur_market_cap.toFixed(0) }} EUR</div>
+        <div>24h volume: {{ currentData.eur_24h_vol.toFixed(0) }} EUR</div>
         <div>
           Last updated at: {{ formatDate(currentData.last_updated_at) }}
         </div>
