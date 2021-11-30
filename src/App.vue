@@ -11,7 +11,7 @@
         <button type="submit">Get data</button>
       </form>
     </div>
-    <ShowRange :startDate="startDate" :endDate="endDate" />
+    <ShowRange :startDate="startDate" :endDate="endDate" :submitValue="submitValue" />
     <Footer />
   </div>
 </template>
@@ -35,6 +35,7 @@ export default {
     return {
       startDate: '',
       endDate: '',
+      submitValue: ''
     };
   },
   methods: {
@@ -43,6 +44,7 @@ export default {
     submitRange() {
       this.startDate = formatDateUnix(this.$refs.startDate.value);
       this.endDate = formatDateUnix(this.$refs.endDate.value);
+      this.submitValue = Math.random()
     },
   },
 };

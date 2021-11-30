@@ -12,11 +12,11 @@ process and display that data.
       </p>
       <div v-if="!hold">
         <p>
-          You should buy at {{ buyDay.timestamp }} when price is
+          You should buy at {{ buyDay.timestamp }} when price was
           {{ formatCurrency(buyDay.price) }}
         </p>
         <p>
-          You should sell at {{ sellDay.timestamp }} when price is
+          You should sell at {{ sellDay.timestamp }} when price was
           {{ formatCurrency(sellDay.price) }}
         </p>
       </div>
@@ -30,7 +30,7 @@ import { formatDate, transformToDaily, formatCurrency } from '../helpers.js';
 
 export default {
   name: 'ShowRange',
-  props: ['startDate', 'endDate'],
+  props: ['startDate', 'endDate', 'submitValue'],
   data() {
     return {
       rangeData: [],
@@ -52,18 +52,9 @@ export default {
   },
   // Watch for changes in props to fetch new data from the API
   watch: {
-    startDate: function () {
+    submitValue: function () {
       this.from = this.startDate;
       this.to = this.endDate;
-      this.getData(
-        `https://api.coingecko.com/api/v3/coins/bitcoin/market_chart/range?vs_currency=eur&from=${
-          this.from
-        }&to=${this.to + 3600}`
-      );
-    },
-    endDate: function () {
-      this.to = this.endDate;
-      this.from = this.startDate;
       this.getData(
         `https://api.coingecko.com/api/v3/coins/bitcoin/market_chart/range?vs_currency=eur&from=${
           this.from
@@ -71,6 +62,7 @@ export default {
       );
     },
     rangeData: function () {
+      this.hold = false;
       this.prices = transformToDaily(this.rangeData, 'prices');
       this.findBearish();
       this.findHighestVolume();
@@ -142,7 +134,7 @@ export default {
     // Find best days to buy (lowest price) and sell (highest price)
     findTradeDays() {
       const prices = this.prices;
-      console.log(prices);
+      let decreasing = true;
       // Set the min and max price as first values at range
       let min = {
         timestamp: prices[0][0],
@@ -152,9 +144,16 @@ export default {
         timestamp: prices[0][0],
         price: prices[0][1],
       };
-      // Set the first difference in daily prices, then compare each element to find maximum difference for best profit
-      let maxDiff = prices[1][1] - prices[0][1];
+      let maxDiff = 0;
       for (let i = 0; i < prices.length; i++) {
+        // Check if price keeps decreasing
+        if (i > 0) {
+          if (prices[i][1] < prices[i - 1][1] && decreasing) {
+            decreasing = true;
+          } else {
+            decreasing = false;
+          }
+        }
         for (let j = i + 1; j < prices.length; j++) {
           if (prices[j][1] - prices[i][1] > maxDiff) {
             maxDiff = prices[j][1] - prices[i][1];
@@ -165,8 +164,9 @@ export default {
           }
         }
       }
-      // Check if price does change or just decreases during the time period
-      if (min.price < max.price) {
+      // If price wasn't decreasing the whole period, save data, else recommend holding action.
+      if (!decreasing) {
+        this.hold = false;
         this.buyDay = {
           timestamp: formatDate(min.timestamp, 'fi', {
             year: 'numeric',
