@@ -3,7 +3,7 @@ process and display that data.
 <template>
   <div>
     <div v-if="!startDate || !endDate">Please select dates</div>
-    <div v-else-if="rangeData.length === 0">Loading data</div>
+    <div v-else-if="isLoading">Loading data</div>
     <div v-else>
       <p>Longest downward trend was {{ downDays }} days</p>
       <p>
@@ -46,6 +46,7 @@ export default {
         price: '',
       },
       hold: false,
+      isLoading: false,
       volume: {},
       prices: {},
     };
@@ -71,11 +72,13 @@ export default {
   },
   methods: {
     // Get data from Coingecko API
-    getData(url) {
+    async getData(url) {
+      this.isLoading = true;
       const headers = { Accept: 'application/json' };
-      fetch(url, { headers })
+      await fetch(url, { headers })
         .then((response) => response.json())
         .then((data) => (this.rangeData = data));
+      this.isLoading = false;
     },
     // Find the longest downward trend from the data that has been transformed to daily data
     findBearish() {
