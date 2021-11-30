@@ -5,13 +5,17 @@
     <div class="rangeSelector">
       <form @submit.prevent="submitRange">
         <label for="startDate">Starting date</label>
-        <input type="date" ref="startDate" />
+        <input type="date" ref="startDate" :min="minDate" :max="today" />
         <label for="endDate">Ending date</label>
-        <input type="date" ref="endDate" />
+        <input type="date" ref="endDate" :min="minDate" :max="today" />
         <button type="submit">Get data</button>
       </form>
     </div>
-    <ShowRange :startDate="startDate" :endDate="endDate" :submitValue="submitValue" />
+    <ShowRange
+      :startDate="startDate"
+      :endDate="endDate"
+      :submitValue="submitValue"
+    />
     <Footer />
   </div>
 </template>
@@ -35,16 +39,25 @@ export default {
     return {
       startDate: '',
       endDate: '',
-      submitValue: ''
+      submitValue: '',
+      today: new Date().toLocaleDateString('en-ca'),  // Prevent user to select dates from the future
+      minDate: '2013-04-28'
     };
   },
   methods: {
     // Get data from form inputs to be used in ShowRange component
     // Also format the date as UNIX timestamp
     submitRange() {
-      this.startDate = formatDateUnix(this.$refs.startDate.value);
-      this.endDate = formatDateUnix(this.$refs.endDate.value);
-      this.submitValue = Math.random()
+      // Check that dates are input
+      if (this.$refs.startDate.value && this.$refs.endDate.value) {
+        // Swap dates by destructuring if they are backwards
+        if (this.$refs.startDate.value > this.$refs.endDate.value) {
+          [this.$refs.startDate.value, this.$refs.endDate.value] = [this.$refs.endDate.value, this.$refs.startDate.value]
+        }
+        this.startDate = formatDateUnix(this.$refs.startDate.value);
+        this.endDate = formatDateUnix(this.$refs.endDate.value);
+        this.submitValue = Math.random();
+      }
     },
   },
 };
