@@ -10,9 +10,3 @@ export default {
   name: 'Header',
 };
 </script>
-
-<style scoped>
-.header {
-  background-color: lightgrey;
-}
-</style>
