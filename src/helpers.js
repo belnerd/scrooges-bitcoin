@@ -58,4 +58,17 @@ module.exports = {
     const lang = language || 'fi-FI';
     return new Intl.NumberFormat(lang, opts).format(value);
   },
+  getJSON: (url, headers) => {
+    const head = headers || { Accept: 'application/json' };
+    return fetch(url, head)
+      .then((response) => response.json())
+      .then(
+        (result) => {
+          return result;
+        },
+        (error) => {
+          return error;
+        }
+      );
+  },
 };

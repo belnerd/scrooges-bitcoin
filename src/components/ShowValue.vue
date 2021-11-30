@@ -1,8 +1,8 @@
 // A component to get and display current day's bitcoin data from coingecko API
 <template>
   <div class="wrapper">
-    <p v-if="currentData.length === 0">Loading current data...</p>
-    <div v-else>
+    <p v-if="currentData.length === 0 && !error">Loading current data...</p>
+    <div v-else-if="!error">
       <header style="text-align: left">Current data</header>
       <div class="dataContent">
         <div>Current value: {{ currentData.eur.toFixed(0) }} EUR</div>
@@ -13,11 +13,12 @@
         </div>
       </div>
     </div>
+    <p v-else>Error loading data: {{ error }}</p>
   </div>
 </template>
 
 <script>
-import helpers from '../helpers.js';
+import { formatDate, getJSON } from '../helpers.js';
 
 export default {
   name: 'ShowValue',
@@ -26,17 +27,22 @@ export default {
       simplePriceURL:
         'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=eur&include_market_cap=true&include_24hr_vol=true&include_last_updated_at=true',
       currentData: [],
+      error: '',
     };
   },
   created() {
     // GET current data from the API
     const headers = { Accept: 'application/json' };
-    fetch(this.simplePriceURL, { headers })
-      .then((response) => response.json())
-      .then((data) => (this.currentData = data.bitcoin));
+    getJSON(this.simplePriceURL, headers).then((response) => {
+      if (!response.error) {
+        this.currentData = response.bitcoin;
+      } else {
+        this.error = response.error;
+      }
+    });
   },
   methods: {
-    formatDate: helpers.formatDate,
+    formatDate,
   },
 };
 </script>
