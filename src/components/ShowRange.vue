@@ -1,7 +1,7 @@
 // A component to get data for a specified date range from coingeck API and
 process and display that data.
 <template>
-  <div>
+  <div v-if="!error">
     <div v-if="!startDate || !endDate">Please select dates</div>
     <div v-else-if="isLoading">Loading data</div>
     <div v-else>
@@ -23,10 +23,16 @@ process and display that data.
       <p v-else>You shouldn't buy or sell during this time period.</p>
     </div>
   </div>
+  <div v-else>{{ error }}</div>
 </template>
 
 <script>
-import { formatDate, transformToDaily, formatCurrency } from '../helpers.js';
+import {
+  formatDate,
+  transformToDaily,
+  formatCurrency,
+  getJSON,
+} from '../helpers.js';
 
 export default {
   name: 'ShowRange',
@@ -49,18 +55,30 @@ export default {
       isLoading: false,
       volume: {},
       prices: {},
+      error: '',
     };
   },
   // Watch for changes in props to fetch new data from the API
   watch: {
     submitValue: function () {
+      this.isLoading = true;
       this.from = this.startDate;
       this.to = this.endDate;
-      this.getData(
+      const headers = { Accept: 'application/json' };
+      getJSON(
         `https://api.coingecko.com/api/v3/coins/bitcoin/market_chart/range?vs_currency=eur&from=${
           this.from
-        }&to=${this.to + 3600}`
-      );
+        }&to=${this.to + 3600}`,
+        headers
+      ).then((response) => {
+        if (!response.error) {
+          this.rangeData = response;
+          this.isLoading = false;
+        } else {
+          this.error = response.error;
+          this.isLoading = false;
+        }
+      });
     },
     rangeData: function () {
       this.hold = false;
