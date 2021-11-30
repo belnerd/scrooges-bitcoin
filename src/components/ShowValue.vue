@@ -3,22 +3,38 @@
   <div class="wrapper">
     <p v-if="currentData.length === 0 && !error">Loading current data...</p>
     <div v-else-if="!error">
-      <header style="text-align: left">Current data</header>
-      <div class="dataContent">
-        <div>Current value: {{ currentData.eur.toFixed(0) }} EUR</div>
-        <div>Market cap: {{ currentData.eur_market_cap.toFixed(0) }} EUR</div>
-        <div>24h volume: {{ currentData.eur_24h_vol.toFixed(0) }} EUR</div>
-        <div>
-          Last updated at: {{ formatDate(currentData.last_updated_at) }}
-        </div>
-      </div>
+      <table>
+        <tbody>
+          <tr>
+            <td colspan="2">
+              <u>Status at {{ formatDate(currentData.last_updated_at) }}</u>
+            </td>
+          </tr>
+          <tr>
+            <td class="leftAlign">Current value</td>
+            <td class="rightAlign">{{ formatCurrency(currentData.eur) }}</td>
+          </tr>
+          <tr>
+            <td class="leftAlign">Market cap</td>
+            <td class="rightAlign">
+              {{ formatCurrency(currentData.eur_market_cap) }}
+            </td>
+          </tr>
+          <tr>
+            <td class="leftAlign">24h volume</td>
+            <td class="rightAlign">
+              {{ formatCurrency(currentData.eur_24h_vol) }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
     <p v-else>Error loading data: {{ error }}</p>
   </div>
 </template>
 
 <script>
-import { formatDate, getJSON } from '../helpers.js';
+import { formatDate, formatCurrency, getJSON } from '../helpers.js';
 
 export default {
   name: 'ShowValue',
@@ -43,6 +59,7 @@ export default {
   },
   methods: {
     formatDate,
+    formatCurrency,
   },
 };
 </script>
@@ -51,9 +68,29 @@ export default {
 .wrapper {
   padding-top: 15px;
 }
-.dataContent {
+
+header {
+  margin-left: 25px;
   text-align: left;
-  border: 1px lightgrey solid;
-  padding: 2px;
+}
+
+table {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: left;
+  table-layout: fixed;
+  width: 50%;
+}
+
+tr {
+  height: 20px;
+}
+
+.leftAlign {
+  text-align: left;
+}
+
+.rightAlign {
+  text-align: right;
 }
 </style>
