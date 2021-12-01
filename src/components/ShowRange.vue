@@ -5,9 +5,9 @@ process and display that data.
     <div v-if="!startDate || !endDate">Please select dates</div>
     <div v-else-if="isLoading">Loading data</div>
     <div v-else>
-      <p>Longest downward trend was {{ downDays }} days</p>
+      <ShowBearish :prices="prices" />
       <p>
-        Highest volume was {{ volume.volume.toFixed(0) }} EUR at
+        Highest volume was {{ formatCurrency(volume.volume) }} at
         {{ volume.date }}
       </p>
       <div v-if="!hold">
@@ -27,6 +27,8 @@ process and display that data.
 </template>
 
 <script>
+import ShowBearish from './ShowBearish.vue';
+
 import {
   formatDate,
   transformToDaily,
@@ -36,13 +38,13 @@ import {
 
 export default {
   name: 'ShowRange',
+  components: { ShowBearish },
   props: ['startDate', 'endDate', 'submitValue'],
   data() {
     return {
       rangeData: [],
       from: this.startDate,
       to: this.endDate,
-      downDays: '',
       buyDay: {
         timestamp: '',
         price: '',
@@ -83,53 +85,11 @@ export default {
     rangeData: function () {
       this.hold = false;
       this.prices = transformToDaily(this.rangeData, 'prices');
-      this.findBearish();
       this.findHighestVolume();
       this.findTradeDays();
     },
   },
   methods: {
-    // Get data from Coingecko API
-    async getData(url) {
-      this.isLoading = true;
-      const headers = { Accept: 'application/json' };
-      await fetch(url, { headers })
-        .then((response) => response.json())
-        .then((data) => (this.rangeData = data));
-      this.isLoading = false;
-    },
-    // Find the longest downward trend from the data that has been transformed to daily data
-    findBearish() {
-      const prices = this.prices;
-      let prevPrice = prices[0][1]; // Set the first price
-      let downDays = 0;
-      let streak = 0;
-      for (let i = 1; i < prices.length; i++) {
-        // Check if the previous price is higher than first price of a new day
-        if (prevPrice >= prices[i][1]) {
-          streak++;
-          prevPrice = prices[i][1];
-          // Check if streak is higher than previous high streak
-          if (streak > downDays) {
-            downDays = streak;
-          }
-          // Check if downward trend ends
-        } else if (prevPrice <= prices[i][1]) {
-          if (streak >= downDays) {
-            downDays = streak;
-          }
-          streak = 0;
-          prevPrice = prices[i][1];
-        } else {
-          if (streak > downDays) {
-            downDays = streak;
-            streak = 0;
-            prevPrice = prices[i][1];
-          }
-        }
-      }
-      this.downDays = downDays;
-    },
     // Find the highest trading volume from the data that has been transformed to daily data (at 00:00 UTC)
     findHighestVolume() {
       const volumes = transformToDaily(this.rangeData, 'total_volumes');
