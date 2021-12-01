@@ -6,10 +6,7 @@ process and display that data.
     <div v-else-if="isLoading">Loading data</div>
     <div v-else>
       <ShowBearish :prices="prices" />
-      <p>
-        Highest volume was {{ formatCurrency(volume.volume) }} at
-        {{ volume.date }}
-      </p>
+      <ShowVolume :volumes="volumes" />
       <div v-if="!hold">
         <p>
           You should buy at {{ buyDay.timestamp }} when price was
@@ -28,6 +25,7 @@ process and display that data.
 
 <script>
 import ShowBearish from './ShowBearish.vue';
+import ShowVolume from './ShowVolume.vue';
 
 import {
   formatDate,
@@ -38,7 +36,7 @@ import {
 
 export default {
   name: 'ShowRange',
-  components: { ShowBearish },
+  components: { ShowBearish, ShowVolume },
   props: ['startDate', 'endDate', 'submitValue'],
   data() {
     return {
@@ -55,8 +53,8 @@ export default {
       },
       hold: false,
       isLoading: false,
-      volume: {},
       prices: {},
+      volumes: {},
       error: '',
     };
   },
@@ -85,33 +83,11 @@ export default {
     rangeData: function () {
       this.hold = false;
       this.prices = transformToDaily(this.rangeData, 'prices');
-      this.findHighestVolume();
+      this.volumes = transformToDaily(this.rangeData, 'total_volumes');
       this.findTradeDays();
     },
   },
   methods: {
-    // Find the highest trading volume from the data that has been transformed to daily data (at 00:00 UTC)
-    findHighestVolume() {
-      const volumes = transformToDaily(this.rangeData, 'total_volumes');
-      let max = {
-        volume: volumes[0][1],
-        timestamp: volumes[0][0],
-      };
-      for (let i = 1; i < volumes.length; i++) {
-        if (volumes[i][1] > max.volume) {
-          max.volume = volumes[i][1];
-          max.timestamp = volumes[i][0];
-        }
-      }
-      this.volume = {
-        volume: max.volume,
-        date: formatDate(max.timestamp, 'fi', {
-          year: 'numeric',
-          month: 'numeric',
-          day: 'numeric',
-        }),
-      };
-    },
     // Find best days to buy (lowest price) and sell (highest price)
     findTradeDays() {
       const prices = this.prices;
