@@ -1,4 +1,4 @@
-// A component to find and show highest volume from range
+// A component to find and show highest volume from given data (range)
 <template>
   <div>
     <p>
