@@ -1,22 +1,34 @@
 <template>
   <div>
-    <Header />
-    <ShowValue />
-    <div class="rangeSelector">
-      <form @submit.prevent="submitRange">
-        <label for="startDate">Starting date</label>
-        <input type="date" ref="startDate" :min="minDate" :max="today" />
-        <label for="endDate">Ending date</label>
-        <input type="date" ref="endDate" :min="minDate" :max="today" />
-        <button class="button" type="submit">Get data</button>
-      </form>
+    <div class="row">
+      <Header class="header col-12" />
     </div>
-    <ShowRange
-      :startDate="startDate"
-      :endDate="endDate"
-      :submitValue="submitValue"
-    />
-    <Footer />
+    <div class="row">
+      <ShowValue class="col-3" style="width: fit-content" />
+      <div class="col-9" style="width: fit-content">
+        <form @submit.prevent="submitRange">
+          <div>
+            <label for="startDate">Starting date</label>
+            <input type="date" ref="startDate" :min="minDate" :max="today" />
+          </div>
+          <div>
+            <label for="endDate">Ending date</label>
+            <input type="date" ref="endDate" :min="minDate" :max="today" />
+          </div>
+          <div>
+            <button class="button" type="submit">GET DATA</button>
+          </div>
+        </form>
+        <ShowRange
+          :startDate="startDate"
+          :endDate="endDate"
+          :submitValue="submitValue"
+        />
+      </div>
+    </div>
+    <div class="row">
+      <Footer class="footer col-12" />
+    </div>
   </div>
 </template>
 
@@ -68,36 +80,76 @@ export default {
 
 <style>
 * {
-  margin: 0;
-  padding: 0;
-  min-width: 400px;
+  box-sizing: border-box;
 }
 
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  /* position: relative;
-  min-height: 100vh; */
-  max-width: 50%;
-  margin: auto;
-  border: 1px solid black;
-  padding: 2px;
+.row::after {
+  content: '';
+  clear: both;
+  display: table;
 }
-.rangeSelector {
-  text-align: left;
+
+[class*='col-'] {
+  float: left;
+  padding: 15px;
+}
+
+.col-1 {
+  width: 8.33%;
+}
+.col-2 {
+  width: 16.66%;
+}
+.col-3 {
+  width: 25%;
+}
+.col-4 {
+  width: 33.33%;
+}
+.col-5 {
+  width: 41.66%;
+}
+.col-6 {
+  width: 50%;
+}
+.col-7 {
+  width: 58.33%;
+}
+.col-8 {
+  width: 66.66%;
+}
+.col-9 {
+  width: 75%;
+}
+.col-10 {
+  width: 83.33%;
+}
+.col-11 {
+  width: 91.66%;
+}
+.col-12 {
+  width: 100%;
+}
+
+html {
+  font-family: arial, sans-serif;
+}
+
+.header,
+.footer {
+  background-color: #007dc1;
+  color: #ffffff;
+  padding: 15px;
 }
 
 .button {
+  margin-top: 10px;
   box-shadow: inset 0px 1px 0px 0px #54a3f7;
   background: linear-gradient(to bottom, #007dc1 5%, #0061a7 100%);
   background-color: #007dc1;
   border-radius: 3px;
   border: 1px solid #124d77;
   display: inline-block;
-  width: 100%;
   cursor: pointer;
   color: #ffffff;
   font-family: Arial;
@@ -115,13 +167,13 @@ export default {
   top: 1px;
 }
 
-.header {
-  background-color: #007dc1;
-  color: #ffffff;
+input,
+label {
+  display: block;
 }
-.footer {
-  background-color: #007dc1;
-  color: #ffffff;
-  margin-top: 100%;
+
+input {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 20px;
 }
 </style>

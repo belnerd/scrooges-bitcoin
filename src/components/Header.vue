@@ -1,6 +1,6 @@
 // A header component
 <template>
-  <div class="header">
+  <div>
     <h1>Scrooge's Bitcoin App</h1>
   </div>
 </template>

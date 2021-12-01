@@ -1,6 +1,6 @@
 // A component to get and display current day's bitcoin data from coingecko API
 <template>
-  <div class="wrapper">
+  <div>
     <p v-if="currentData.length === 0 && !error">Loading current data...</p>
     <div v-else-if="!error">
       <table>
@@ -65,23 +65,6 @@ export default {
 </script>
 
 <style scoped>
-.wrapper {
-  padding-top: 15px;
-}
-
-header {
-  margin-left: 25px;
-  text-align: left;
-}
-
-table {
-  margin-left: auto;
-  margin-right: auto;
-  text-align: left;
-  table-layout: fixed;
-  width: 50%;
-}
-
 tr {
   height: 20px;
 }

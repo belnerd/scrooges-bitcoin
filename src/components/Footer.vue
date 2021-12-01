@@ -1,6 +1,6 @@
 // A footer component
 <template>
-  <div class="footer">
+  <div>
     <i>2021 Tapio Ekman</i>
   </div>
 </template>
