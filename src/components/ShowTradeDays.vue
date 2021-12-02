@@ -1,5 +1,5 @@
 // A component to find and show best possible days to buy and sell, or to hold
-action.
+// action.
 <template>
   <div v-if="!hold">
     <p>

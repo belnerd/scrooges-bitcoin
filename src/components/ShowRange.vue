@@ -1,5 +1,5 @@
 // A component to get data for a specified date range from coingecko API and
-process and display that data (with further components).
+// process and display that data (with further components).
 <template>
   <div v-if="!error">
     <div v-if="!startDate || !endDate">Please select dates</div>
