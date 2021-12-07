@@ -65,10 +65,10 @@ module.exports = {
       .then(
         (result) => {
           return result;
-        },
-        (error) => {
-          return error;
         }
-      );
+      )
+      .catch((error) => {
+        throw new Error(error);
+      });
   },
 };

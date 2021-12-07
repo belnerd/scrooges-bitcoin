@@ -43,6 +43,10 @@ export default {
       submitValue: '',
     };
   },
+  errorCaptured: function (err) {
+    console.log('Caught error: ', err.message);
+    return false;
+  },
   methods: {
     // Handle data received from RangeForm component
     handleSubmit(event) {
