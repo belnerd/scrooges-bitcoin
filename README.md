@@ -1,7 +1,7 @@
 # scrooges-bitcoin
 
 ## Demo
-[Working demo at Heroku[(https://scrooges-bitcoin.herokuapp.com/)
+[Working demo at Heroku](https://scrooges-bitcoin.herokuapp.com/)
 
 ## Project setup
 ```
